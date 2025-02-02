@@ -1,0 +1,1 @@
+azerothcore账号注册，支持自定义背景。集成Cloudflare Turnstile人机验证，支持验证码开关。
