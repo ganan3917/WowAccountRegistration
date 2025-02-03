@@ -16,8 +16,14 @@ if ($conn->connect_error) {
     die("数据库连接失败: ". $conn->connect_error);
 }
 
-// 验证码开关（可根据需要修改为 true 或 false）
+// 验证码开关，可按需修改
 $captchaEnabled = true;
+
+// 消息公告内容
+$announcement = "欢迎来到 AzerothCore 注册页面！请遵守相关规定进行注册。";
+
+// 初始化注册结果信息
+$registrationResult = "";
 
 // 检查是否通过 POST 方法提交了表单
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -46,11 +52,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             )
         );
         $context = stream_context_create($options);
-        $result = file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $context);
-        $response = json_decode($result, true);
-
-        if (!$response['success']) {
-            $errorMessage = "验证码验证失败，请重试。";
+        $result = @file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $context);
+        if ($result === false) {
+            $errorMessage = "验证码验证请求失败，请稍后重试。";
+        } else {
+            $response = json_decode($result, true);
+            if (!$response['success']) {
+                $errorMessage = "验证码验证失败，请重试。";
+            }
         }
     }
 
@@ -84,11 +93,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $insertQuery = "INSERT INTO account (username, sha_pass_hash, email) VALUES ('$username', '$hash', '$email')";
 
             if ($conn->query($insertQuery) === TRUE) {
-                $successMessage = "账号注册成功！";
+                $registrationResult = '<div class="success">账号注册成功！</div>';
             } else {
-                $errorMessage = "注册过程中出现错误: ". $conn->error;
+                $registrationResult = '<div class="error">注册过程中出现错误: '. $conn->error. '</div>';
             }
         }
+    } else {
+        $registrationResult = '<div class="error">'. $errorMessage. '</div>';
     }
 }
 ?>
@@ -122,15 +133,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             width: 300px;
+            text-align: center;
         }
 
         h2 {
-            text-align: center;
+            margin-bottom: 15px;
         }
 
         label {
             display: block;
             margin-bottom: 5px;
+            text-align: left;
         }
 
         input[type="text"],
@@ -141,6 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box;
         }
 
         input[type="submit"] {
@@ -151,6 +165,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
 
         input[type="submit"]:hover {
@@ -159,27 +174,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .error {
             color: red;
-            text-align: center;
             margin-bottom: 10px;
         }
 
         .success {
             color: green;
-            text-align: center;
             margin-bottom: 10px;
+        }
+
+        .announcement {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 
 <body>
     <div class="form-container">
-        <h2>AzerothCore 账号注册</h2>
-        <?php if (isset($errorMessage)): ?>
-            <p class="error"><?php echo $errorMessage; ?></p>
-        <?php endif; ?>
-        <?php if (isset($successMessage)): ?>
-            <p class="success"><?php echo $successMessage; ?></p>
-        <?php endif; ?>
+        <div class="announcement">
+            <?php echo $announcement; ?>
+        </div>
+        <?php echo $registrationResult; ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="username">用户名:</label>
             <input type="text" id="username" name="username" required>
