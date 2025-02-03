@@ -34,10 +34,14 @@ Azerothcore帐户注册支持自定义背景。集成Cloudflare Turnstile人机�
  - 用户名查重：查询数据库，检查用户名是否已被使用。
  - 数据库插入：若所有验证通过，将用户信息插入数据库，并根据操作结果设置 $registrationResult。
 
-### 重要说明
 > HTML 和 CSS 部分
 - 自定义背景：使用 background-image 属性设置网页背景图片。
 - 居中布局：利用 display: flex、justify-content: center 和 align-items: center 实现表单容器在页面中水平和垂直居中。
 - Turnstile 验证码：根据 $captchaEnabled 决定是否显示验证码组件。
 - 注册结果显示：使用 $registrationResult 显示注册成功或失败的消息。
 - 消息公告展示：在表单上方展示 $announcement 中的消息公告内容。
+
+### 重要说明
+- 请将 your_db_username、your_db_password 和 your_azerothcore_db 替换为你实际的数据库用户名、密码和数据库名。
+- 把 YOUR_SITE_KEY 和 YOUR_SECRET_KEY 替换为你从 Cloudflare Turnstile 控制台获取的站点密钥和秘钥。
+- 确保 background.jpg 图片文件存在于与该 PHP 文件相同的目录下，或根据实际情况修改图片路径。
