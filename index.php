@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 获取用户输入的信息
     $inputUsername = $_POST["username"];
     $inputPassword = $_POST["password"];
+    $inputConfirmPassword = $_POST["confirm_password"];
     $inputEmail = $_POST["email"];
 
     $errorMessage = "";
@@ -65,10 +66,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 其他表单验证
     if (empty($errorMessage)) {
-        if (empty($inputUsername) || empty($inputPassword) || empty($inputEmail)) {
+        if (empty($inputUsername) || empty($inputPassword) || empty($inputConfirmPassword) || empty($inputEmail)) {
             $errorMessage = "请填写所有必填字段。";
         } elseif (!filter_var($inputEmail, FILTER_VALIDATE_EMAIL)) {
             $errorMessage = "请输入有效的电子邮件地址。";
+        } elseif ($inputPassword!== $inputConfirmPassword) {
+            $errorMessage = "两次输入的密码不一致，请重新输入。";
         }
     }
 
@@ -202,6 +205,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" id="username" name="username" required>
             <label for="password">密码:</label>
             <input type="password" id="password" name="password" required>
+            <label for="confirm_password">确认密码:</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
             <label for="email">邮箱:</label>
             <input type="email" id="email" name="email" required>
             <?php if ($captchaEnabled): ?>
